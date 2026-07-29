@@ -1,0 +1,29 @@
+# ── Model weights (large files, do not upload) ──
+*.pt
+*.pth
+*.ckpt
+
+# ── Compiled CUDA extensions (platform-specific) ──
+_C.so
+
+# ── Checkpoint cache ──
+checkpoints/
+
+# ── Python artifacts ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# ── Jupyter ──
+.ipynb_checkpoints/
+
+# ── IDE ──
+.vscode/
+.idea/
+
+# ── OS cruft ──
+.DS_Store
+Thumbs.db
+
+# ── Environment / secrets ──
+.env
