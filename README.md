@@ -74,26 +74,53 @@ gdsense-sam2/
 ├── scripts/
 │   └── setup_vastai.sh              # One-click environment bootstrap
 ├── notebooks/
-│   ├── boxes_segment.ipynb          # SAM 2 automatic mask generation demo
+│   ├── batch_segment_improved.ipynb # 5-stage pipeline (toggle-driven)
 │   └── README.md
-├── input/                           # Sample input images
+├── input/                           # Sample images (multi_box2/3/4)
 ├── output/                          # Segmentation results
-├── docs/
-│   └── notes/
-│       └── setup-sam2-20260729.md   # Environment setup log
+│   ├── multi_box2/                  # 22 boxes
+│   ├── multi_box3/                  # 12 boxes
+│   └── multi_box4/                  # 34 boxes
 └── sam2/ → git submodule (planned)
 ```
+
+---
+
+## 🔬 Box Segmentation Pipeline
+
+Single notebook (`notebooks/batch_segment_improved.ipynb`), 5 configurable stages:
+
+| Stage | Purpose | Control |
+|-------|---------|---------|
+| 1 | AutoMaskGenerator candidate masks | `POINTS_PER_SIDE`, thresholds |
+| 2 | Geometric filter (rectangularity + fully-in-frame) | `MIN_RECTANGULARITY`, `BOUNDARY_MARGIN` |
+| 2.5 | **Texture filter** (edge density + local variance) | `ENABLE_TEXTURE_FILTER` |
+| 3 | Predictor bbox-prompt refinement | `REFINE_WITH_PREDICTOR` |
+| 4 | Morphological clean-up → save RGBA | `MORPH_OPEN_RADIUS`, `MORPH_CLOSE_RADIUS` |
+
+### Known Issues
+
+| Issue | Root Cause | Status |
+|-------|------------|--------|
+| multi_box3 CUDA OOM | 5957×3971 raw image exceeds VRAM | Fixed with `MAX_IMAGE_SIZE=1024` downscale |
+| multi_box4 brick wall false positives | Geometry filter cannot distinguish brick walls from boxes | Texture filter variant pending test |
+
+### Next Steps
+
+- [ ] Run texture filter on multi_box4 to validate brick wall suppression
+- [ ] If texture filter insufficient → evaluate Grounding DINO as top-down alternative
+- [ ] PatchCore edge-side integration
+- [ ] End-to-end two-stage pipeline demo
 
 ---
 
 ## 📝 Status
 
 - [x] SAM 2 environment set up (2026-07-29)
-- [x] base+ checkpoint downloaded + CUDA kernel compiled
-- [x] `import sam2` verified
-- [x] Automatic mask generator demo (boxes_segment.ipynb)
-- [ ] Re-provision instance & validate `setup_vastai.sh`
-- [ ] SAM 2 model load + VRAM stress test
+- [x] Automatic mask generator baseline
+- [x] 5-stage improved pipeline — multi_box2/3/4 results (2026-07-31)
+- [x] Texture filter notebook + Grounding DINO feasibility analysis
+- [ ] Validate texture filter on multi_box4
 - [ ] PatchCore edge-side integration
 - [ ] End-to-end two-stage pipeline demo
 
